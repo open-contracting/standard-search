@@ -24,18 +24,21 @@ def _load(language, base_url, results, language_code):
     doc_type = "results"
 
     if not elasticsearch.indices.exists(es_index):
-        elasticsearch.indices.create(index=es_index, body={
-            "mappings": {
-                doc_type: {
-                    "_all": {"analyzer": language},
-                    "properties": {
-                        "text": {"type": "text", "analyzer": language},
-                        "title": {"type": "text", "analyzer": language},
-                        "base_url": {"type": "keyword"},
+        elasticsearch.indices.create(
+            index=es_index,
+            body={
+                "mappings": {
+                    doc_type: {
+                        "_all": {"analyzer": language},
+                        "properties": {
+                            "text": {"type": "text", "analyzer": language},
+                            "title": {"type": "text", "analyzer": language},
+                            "base_url": {"type": "keyword"},
+                        },
                     },
                 },
             },
-        })
+        )
 
     elasticsearch.delete_by_query(
         index=es_index,
@@ -47,7 +50,9 @@ def _load(language, base_url, results, language_code):
 
     for result in results:
         result["base_url"] = _get_http_version_of_url(result["base_url"])
-        elasticsearch.index(index=es_index, doc_type=doc_type, id=result["url"], body=result)
+        elasticsearch.index(
+            index=es_index, doc_type=doc_type, id=result["url"], body=result
+        )
 
 
 def _respond(content):
@@ -76,21 +81,25 @@ def search_v1(request):
     if lang:
         es_index = es_index + "_" + lang
 
-    res = Elasticsearch().search(index=es_index, size=100, body={
-        "query": {
-            "bool": {
-                "must": {
-                    "query_string": {
-                        "query": q,
-                        "fields": ["text", "title^3"],
-                        "default_operator": "and",
+    res = Elasticsearch().search(
+        index=es_index,
+        size=100,
+        body={
+            "query": {
+                "bool": {
+                    "must": {
+                        "query_string": {
+                            "query": q,
+                            "fields": ["text", "title^3"],
+                            "default_operator": "and",
+                        },
                     },
-                },
-                "filter": {"term": {"base_url": base_url}},
-            }
+                    "filter": {"term": {"base_url": base_url}},
+                }
+            },
+            "highlight": {"fields": {"text": {}, "title": {}}},
         },
-        "highlight": {"fields": {"text": {}, "title": {}}},
-    })
+    )
 
     content = {
         "results": [],

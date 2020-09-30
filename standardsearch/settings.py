@@ -111,9 +111,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -142,7 +148,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
-    "root": {"level": "WARNING", "handlers": ["console"],},
+    "root": {
+        "level": "WARNING",
+        "handlers": ["console"],
+    },
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
@@ -155,7 +164,9 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "null": {"class": "logging.NullHandler",},
+        "null": {
+            "class": "logging.NullHandler",
+        },
     },
     "loggers": {
         "django.db.backends": {
@@ -163,6 +174,9 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": False,
         },
-        "django.security.DisallowedHost": {"handlers": ["null"], "propagate": False,},
+        "django.security.DisallowedHost": {
+            "handlers": ["null"],
+            "propagate": False,
+        },
     },
 }

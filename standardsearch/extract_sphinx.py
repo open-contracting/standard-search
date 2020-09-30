@@ -45,7 +45,7 @@ def extract_page(url, base_url, new_url):
         export_url = new_url + url[len(base_url) :]
 
     for section in sections:
-        if "expandjson" in section['class']:
+        if "expandjson" in section["class"]:
             continue
 
         text, section_id = extract_section(section)
