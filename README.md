@@ -15,7 +15,7 @@ It understands the output of Sphinx, and cleverly extracts things like sections.
 ## Technical requirements
 
 * A Django app web server
-* An Elasticsearch 6 server
+* An Elasticsearch server
 
 ## OCDS: Indexing a website
 
