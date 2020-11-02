@@ -103,7 +103,7 @@ def search_v1(request):
 
     content = {
         "results": [],
-        "count": res["hits"]["total"],
+        "count": res["hits"]["total"]["value"],
     }
 
     for hit in res["hits"]["hits"]:
