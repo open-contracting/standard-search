@@ -69,7 +69,9 @@ def requests_get(url):
         @property
         def text(self):
             components = urlparse(url).path.split("/")
-            with open(os.path.join("tests", "fixtures", *components, "index.html")) as f:
+            with open(
+                os.path.join("tests", "fixtures", *components, "index.html")
+            ) as f:
                 return f.read()
 
         def raise_for_status(self):
@@ -164,7 +166,12 @@ class StandardSearchTestCase(TestCase):
         es = klass.return_value
         es.indices.exists.return_value = False
 
-        _load("english", "https://standard.open-contracting.org/dev/en/", deepcopy(expected), "en")
+        _load(
+            "english",
+            "https://standard.open-contracting.org/dev/en/",
+            deepcopy(expected),
+            "en",
+        )
 
         klass.assert_called_once_with()
         es.indices.exists.assert_called_once_with("standardsearch_en")
@@ -184,7 +191,11 @@ class StandardSearchTestCase(TestCase):
             index="standardsearch_en",
         )
         es.delete_by_query.assert_called_once_with(
-            body={"query": {"term": {"base_url": "http://standard.open-contracting.org/dev/en/"}}},
+            body={
+                "query": {
+                    "term": {"base_url": "http://standard.open-contracting.org/dev/en/"}
+                }
+            },
             doc_type="results",
             index="standardsearch_en",
         )
