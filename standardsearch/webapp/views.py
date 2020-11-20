@@ -1,6 +1,6 @@
+import elasticsearch
 from django.conf import settings
 from django.http import JsonResponse
-from elasticsearch import Elasticsearch
 
 from standardsearch.extract_sphinx import process
 
@@ -19,12 +19,12 @@ def _get_http_version_of_url(url):
 
 
 def _load(language, base_url, results, language_code):
-    elasticsearch = Elasticsearch()
+    es = elasticsearch.Elasticsearch()
     es_index = "standardsearch_{}".format(language_code)
     doc_type = "results"
 
-    if not elasticsearch.indices.exists(es_index):
-        elasticsearch.indices.create(
+    if not es.indices.exists(es_index):
+        es.indices.create(
             index=es_index,
             body={
                 "mappings": {
@@ -40,7 +40,7 @@ def _load(language, base_url, results, language_code):
             },
         )
 
-    elasticsearch.delete_by_query(
+    es.delete_by_query(
         index=es_index,
         doc_type=doc_type,
         # In our data store, we store everything with a base_url with an http address,
@@ -50,9 +50,7 @@ def _load(language, base_url, results, language_code):
 
     for result in results:
         result["base_url"] = _get_http_version_of_url(result["base_url"])
-        elasticsearch.index(
-            index=es_index, doc_type=doc_type, id=result["url"], body=result
-        )
+        es.index(index=es_index, doc_type=doc_type, id=result["url"], body=result)
 
 
 def _respond(content):

@@ -1,3 +1,2 @@
-__pycache__
-.ve
-db.sqlite3
+/.coverage
+/htmlcov

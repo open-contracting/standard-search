@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Merging &mdash; Open Contracting Data Standard 1.1.5 documentation</title>
+</head>
+<body>
+
+<div class="section" id="merging">
+  <h1>Merging<a class="headerlink" href="#merging" title="Permalink to this headline">¶</a></h1>
+
+  <p>An OCDS record …</p>
+
+  <div class="section" id="merging-specification">
+    <h2>Merging specification<a class="headerlink" href="#merging-specification" title="Permalink to this headline">¶</a></h2>
+
+    <div class="section" id="merge-routine">
+      <h3>Merge routine<a class="headerlink" href="#merge-routine" title="Permalink to this headline">¶</a></h3>
+
+      <p>To create a compiled or versioned release, you must:</p>
+      <ol class="simple">
+        <li><p>Get all releases with the same <code class="docutils literal notranslate"><span class="pre">ocid</span></code> value</p></li>
+      </ol>
+
+      <div class="section" id="array-values">
+        <h4>Array values<a class="headerlink" href="#array-values" title="Permalink to this headline">¶</a></h4>
+
+        <p>If the <strong>input</strong> array contains anything other than objects, treat the array as a literal value. Otherwise, there are two sub-routines for arrays of objects: whole list merge and identifier merge.</p>
+
+        <div class="section" id="whole-list-merge">
+          <h5>Whole list merge<a class="headerlink" href="#whole-list-merge" title="Permalink to this headline">¶</a></h5>
+
+          <p>An <strong>input</strong> array must be treated as a literal value if the corresponding field in a <a class="reference external" href="../../dereferenced-release-schema.json">dereferenced copy</a> of the release schema has <code class="docutils literal notranslate"><span class="pre">"array"</span></code> in its <code class="docutils literal notranslate"><span class="pre">type</span></code> and if any of the following are also true:</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
