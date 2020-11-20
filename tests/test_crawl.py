@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from django.test import TestCase
 
-from standardsearch.extract_sphinx import extract_page, extract_section, process
+from standardsearch.extract_sphinx import extract_page, process
 from standardsearch.webapp.views import _load
 
 expected = [
@@ -42,19 +42,24 @@ expected = [
     },
     {
         "base_url": "https://standard.open-contracting.org/dev/en/",
-        "text": "\nMerge routine\n\nTo create a compiled or versioned release, you must:\n\nGet all releases with the same ocid value\n\n",
+        "text": "\nMerge routine\n\nTo create a compiled or versioned release, you must:\n"
+        "\nGet all releases with the same ocid value\n\n",
         "title": "Merging - Merge routine",
         "url": "https://standard.open-contracting.org/dev/en/schema/#merge-routine",
     },
     {
         "base_url": "https://standard.open-contracting.org/dev/en/",
-        "text": "\nArray values\n\nIf the input array contains anything other than objects, treat the array as a literal value. Otherwise, there are two sub-routines for arrays of objects: whole list merge and identifier merge.\n\n",
+        "text": "\nArray values\n\nIf the input array contains anything other than objects, treat the array as a "
+        "literal value. Otherwise, there are two sub-routines for arrays of objects: whole list merge and "
+        "identifier merge.\n\n",
         "title": "Merging - Array values",
         "url": "https://standard.open-contracting.org/dev/en/schema/#array-values",
     },
     {
         "base_url": "https://standard.open-contracting.org/dev/en/",
-        "text": '\nWhole list merge\n\nAn input array must be treated as a literal value if the corresponding field in a dereferenced copy of the release schema has "array" in its type and if any of the following are also true:\n',
+        "text": "\nWhole list merge\n\nAn input array must be treated as a literal value if the corresponding field "
+        'in a dereferenced copy of the release schema has "array" in its type and if any of the following are '
+        "also true:\n",
         "title": "Merging - Whole list merge",
         "url": "https://standard.open-contracting.org/dev/en/schema/#whole-list-merge",
     },

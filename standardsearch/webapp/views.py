@@ -79,7 +79,7 @@ def search_v1(request):
     if lang:
         es_index = es_index + "_" + lang
 
-    res = Elasticsearch().search(
+    res = elasticsearch.Elasticsearch().search(
         index=es_index,
         size=100,
         body={
