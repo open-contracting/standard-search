@@ -75,7 +75,7 @@ def process(url, new_url):
     page_results, next_url = extract_page(url, new_url)
     results.extend(page_results)
     new_url = urljoin(new_url, next_url)
- 
+
     while next_url:
         full_next_url = urljoin(last_url, next_url)
         page_results, next_url = extract_page(urljoin(last_url, next_url), new_url)
