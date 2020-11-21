@@ -6,7 +6,6 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-
 LANGUAGE_MAP = {
     "en": "english",
     "es": "spanish",

@@ -12,6 +12,7 @@ django==2.0.13            # via -r requirements.in
 elasticsearch==7.10.0     # via -r requirements.in
 html5lib==1.1             # via -r requirements.in
 idna==2.10                # via requests
+lxml==4.6.1               # via -r requirements.in
 pytz==2020.1              # via django
 requests==2.24.0          # via -r requirements.in
 sentry-sdk==0.17.3        # via -r requirements.in

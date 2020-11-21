@@ -12,7 +12,7 @@ from standardsearch.webapp.views import _load
 
 expected = [
     {
-        "text": "\n\n\nAbout\nThe Open Contracting Data Standard",
+        "text": "\nAbout\nThe Open Contracting Data Standard",
         "title": "Open Contracting Data Standard: Documentation - About",
         "url": "https://standard.open-contracting.org/dev/en/#about",
     },
@@ -99,7 +99,7 @@ class StandardSearchTestCase(TestCase):
             "https://standard.open-contracting.org/dev/en/schema/",
         )
 
-        self.assertEqual(results, (expected[3:], None))
+        self.assertEqual(results, (expected[3:], []))
 
     def test_process(self):
         results = process("http://localhost:8332/en/", "https://standard.open-contracting.org/dev/en/")
@@ -187,14 +187,14 @@ class StandardSearchTestCase(TestCase):
         )
         self.assertEqual(es.index.call_count, 8)
         self.assertEqual(
-            es.index.mock_calls[0],
+            tuple(es.index.mock_calls[0]),
             (
                 "",
                 (),
                 {
                     "body": {
                         "base_url": "https://standard.open-contracting.org/dev/en/",
-                        "text": "\n\n\nAbout\nThe Open Contracting Data Standard",
+                        "text": "\nAbout\nThe Open Contracting Data Standard",
                         "title": "Open Contracting Data Standard: Documentation - About",
                         "url": "https://standard.open-contracting.org/dev/en/#about",
                     },

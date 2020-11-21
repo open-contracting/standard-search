@@ -3,5 +3,6 @@ django<2.1
 django-environ
 elasticsearch>=7,<8
 html5lib
+lxml
 requests
 sentry-sdk

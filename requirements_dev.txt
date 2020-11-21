@@ -22,6 +22,7 @@ html5lib==1.1             # via -r requirements.txt
 idna==2.10                # via -r requirements.txt, requests
 importlib-metadata==1.7.0  # via flake8
 isort==5.4.2              # via -r requirements_dev.in
+lxml==4.6.1               # via -r requirements.txt
 mccabe==0.6.1             # via flake8
 mypy-extensions==0.4.3    # via black
 pathspec==0.8.0           # via black

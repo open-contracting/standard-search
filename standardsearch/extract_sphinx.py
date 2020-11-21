@@ -1,86 +1,73 @@
 from urllib.parse import urljoin
 
+import lxml.html
 import requests
-from bs4 import BeautifulSoup
+from lxml import etree
 
 
 def extract_section(section):
     all_text = []
-    all_parts = section.contents
 
-    section_id = section["id"]
-
-    for part in all_parts:
+    for part in section.xpath('node()'):
         if isinstance(part, str):
             text = str(part)
         else:
-            text = part.get_text()
-            if "section" in part.get("class", []):
+            if "section" in part.get("class", ""):
                 continue
+            text = part.text_content()
 
         lines = (line.strip().rstrip("¶") for line in text.splitlines())
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = "\n".join(chunk for chunk in chunks if chunk)
+        text = "\n".join(filter(None, chunks))
         all_text.append(text)
 
-    return "\n".join(all_text), section_id
+    return "\n".join(all_text), section.attrib["id"]
 
 
-def extract_page(url, export_url):
-    r = requests.get(url)
-    r.raise_for_status()
-    r.encoding = "utf-8"
+def extract_page(local_url, remote_url):
+    response = requests.get(local_url)
+    response.raise_for_status()
+    response.encoding = "utf-8"
 
-    soup = BeautifulSoup(r.text, "html5lib")
+    document = lxml.html.fromstring(response.content)
 
-    for script in soup(["script", "style"]):
-        script.extract()
+    for element in ("script", "style"):
+        etree.strip_elements(document, element)
 
     page_results = []
-
-    sections = soup("div", class_="section")
-
-    for section in sections:
-        if "expandjson" in section["class"]:
+    for section in document.xpath("//div[contains(@class, 'section')]"):
+        if "expandjson" in section.attrib["class"]:
             continue
 
         text, section_id = extract_section(section)
 
-        title = soup.title.string.split("—")[0].strip()
-
-        section_title = section.find(["h1", "h2", "h3", "h4", "h5"]).text.rstrip("¶")
+        title = document.xpath("//title/text()")[0].split("—")[0].strip()
+        section_title = section.xpath("h1|h2|h3|h4|h5")[0].text_content().rstrip("¶")
 
         if title != section_title:
-            title = title + " - " + section_title
+            title = f"{title} - {section_title}"
 
-        body = {
-            "url": export_url + "#" + section_id,
+        page_results.append({
+            "url": f"{remote_url}#{section_id}",
             "text": text,
             "title": title,
-        }
+        })
 
-        page_results.append(body)
+    href = document.xpath("//a[@accesskey='n']/@href")
+    if href:
+        href = href[0]
 
-    next_button = soup(accesskey="n")
-    next_url = None
-    if next_button:
-        next_url = next_button[0].get("href")
-
-    return page_results, next_url
+    return page_results, href
 
 
-def process(url, new_url):
+def process(url, remote_url):
     results = []
-    last_url = url
-    page_results, next_url = extract_page(url, new_url)
-    results.extend(page_results)
-    new_url = urljoin(new_url, next_url)
+    local_url = href = url
 
-    while next_url:
-        full_next_url = urljoin(last_url, next_url)
-        page_results, next_url = extract_page(urljoin(last_url, next_url), new_url)
+    while href:
+        page_results, href = extract_page(local_url, remote_url)
+        local_url = urljoin(local_url, href)
+        remote_url = urljoin(remote_url, href)
         results.extend(page_results)
-        new_url = urljoin(new_url, next_url)
-        last_url = full_next_url
 
     return results
