@@ -110,14 +110,16 @@ class StandardSearchTestCase(TestCase):
     def test_index(self, load):
         response = self.client.post(
             "/v1/index_ocds",
-            json.dumps({
-                "secret": "change_this_secret_on_production",
-                "base_url": "https://standard.open-contracting.org/dev/",
-                "data": {
-                    "en": deepcopy(expected),
-                    "es": deepcopy(expected_es),
-                },
-            }),
+            json.dumps(
+                {
+                    "secret": "change_this_secret_on_production",
+                    "base_url": "https://standard.open-contracting.org/dev/",
+                    "data": {
+                        "en": deepcopy(expected),
+                        "es": deepcopy(expected_es),
+                    },
+                }
+            ),
             content_type="application/json",
         )
 
@@ -177,11 +179,7 @@ class StandardSearchTestCase(TestCase):
             index="standardsearch_en",
         )
         es.delete_by_query.assert_called_once_with(
-            body={
-                "query": {
-                    "term": {"base_url": "https://standard.open-contracting.org/dev/en/"}
-                }
-            },
+            body={"query": {"term": {"base_url": "https://standard.open-contracting.org/dev/en/"}}},
             doc_type="results",
             index="standardsearch_en",
         )

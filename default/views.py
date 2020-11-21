@@ -99,9 +99,7 @@ def search_v1(request):
             {
                 "title": hit["_source"]["title"],
                 "url": hit["_source"]["url"],
-                "highlights": hit["highlight"].get(
-                    "text", hit["highlight"].get("title")
-                ),
+                "highlights": hit["highlight"].get("text", hit["highlight"].get("title")),
             }
         )
 

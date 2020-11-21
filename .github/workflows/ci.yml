@@ -19,7 +19,7 @@ jobs:
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
     - run: pip install -r requirements_dev.txt
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-    - run: black --check .
+    - run: black -l 119 --check .
     - run: coverage run --source default,standardsearch manage.py test
       if: always()
     - env:

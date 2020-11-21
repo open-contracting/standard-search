@@ -8,7 +8,7 @@ from lxml import etree
 def extract_section(section):
     all_text = []
 
-    for part in section.xpath('node()'):
+    for part in section.xpath("node()"):
         if isinstance(part, str):
             text = str(part)
         else:
@@ -47,11 +47,13 @@ def extract_page(local_url, remote_url):
         if title != section_title:
             title = f"{title} - {section_title}"
 
-        page_results.append({
-            "url": f"{remote_url}#{section_id}",
-            "text": text,
-            "title": title,
-        })
+        page_results.append(
+            {
+                "url": f"{remote_url}#{section_id}",
+                "text": text,
+                "title": title,
+            }
+        )
 
     href = document.xpath("//a[@accesskey='n']/@href")
     if href:
