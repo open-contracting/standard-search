@@ -36,11 +36,7 @@ class Command(BaseCommand):
                 if not entry.is_dir():
                     continue
 
-                language_code = entry.name
-
-                results = process(f"http://{host}:{port_number}/{language_code}/", options["base_url"])
-
-                data[language_code] = results
+                data[entry.name] = process(f"http://{host}:{port_number}/{entry.name}/", options["base_url"])
         finally:
             p.terminate()
 
