@@ -26,7 +26,7 @@ def extract_section(section):
     return "\n".join(all_text), section_id
 
 
-def extract_page(url, base_url, new_url):
+def extract_page(url, export_url):
     r = requests.get(url)
     r.raise_for_status()
     r.encoding = "utf-8"
@@ -39,10 +39,6 @@ def extract_page(url, base_url, new_url):
     page_results = []
 
     sections = soup("div", class_="section")
-
-    export_url = url
-    if new_url:
-        export_url = new_url + url[len(base_url) :]
 
     for section in sections:
         if "expandjson" in section["class"]:
@@ -59,7 +55,6 @@ def extract_page(url, base_url, new_url):
 
         body = {
             "url": export_url + "#" + section_id,
-            "base_url": new_url or base_url,
             "text": text,
             "title": title,
         }
@@ -77,13 +72,15 @@ def extract_page(url, base_url, new_url):
 def process(url, new_url):
     results = []
     last_url = url
-    page_results, next_url = extract_page(url, url, new_url)
+    page_results, next_url = extract_page(url, new_url)
     results.extend(page_results)
-
+    new_url = urljoin(new_url, next_url)
+ 
     while next_url:
         full_next_url = urljoin(last_url, next_url)
-        page_results, next_url = extract_page(urljoin(last_url, next_url), url, new_url)
+        page_results, next_url = extract_page(urljoin(last_url, next_url), new_url)
         results.extend(page_results)
+        new_url = urljoin(new_url, next_url)
         last_url = full_next_url
 
     return results

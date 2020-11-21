@@ -1,8 +1,9 @@
 import json
 import os.path
 from copy import deepcopy
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from multiprocessing import Process
 from unittest.mock import patch
-from urllib.parse import urlparse
 
 from django.test import TestCase
 
@@ -11,44 +12,37 @@ from standardsearch.webapp.views import _load
 
 expected = [
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\n\n\nAbout\nThe Open Contracting Data Standard",
         "title": "Open Contracting Data Standard: Documentation - About",
         "url": "https://standard.open-contracting.org/dev/en/#about",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nGuidance\nAre you new to OCDS?",
         "title": "Guidance",
         "url": "https://standard.open-contracting.org/dev/en/guidance/#guidance",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nDesign\nThis phase is about setting up your OCDS implementation to be a success.",
         "title": "Design",
         "url": "https://standard.open-contracting.org/dev/en/guidance/page/#design",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nMerging\n\nAn OCDS record …\n\n",
         "title": "Merging",
         "url": "https://standard.open-contracting.org/dev/en/schema/#merging",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nMerging specification\n\n",
         "title": "Merging - Merging specification",
         "url": "https://standard.open-contracting.org/dev/en/schema/#merging-specification",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nMerge routine\n\nTo create a compiled or versioned release, you must:\n"
         "\nGet all releases with the same ocid value\n\n",
         "title": "Merging - Merge routine",
         "url": "https://standard.open-contracting.org/dev/en/schema/#merge-routine",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nArray values\n\nIf the input array contains anything other than objects, treat the array as a "
         "literal value. Otherwise, there are two sub-routines for arrays of objects: whole list merge and "
         "identifier merge.\n\n",
@@ -56,7 +50,6 @@ expected = [
         "url": "https://standard.open-contracting.org/dev/en/schema/#array-values",
     },
     {
-        "base_url": "https://standard.open-contracting.org/dev/en/",
         "text": "\nWhole list merge\n\nAn input array must be treated as a literal value if the corresponding field "
         'in a dereferenced copy of the release schema has "array" in its type and if any of the following are '
         "also true:\n",
@@ -65,65 +58,67 @@ expected = [
     },
 ]
 
-
-def requests_get(url):
-    class MockResponse:
-        def __init__(self, url):
-            self.url = url
-
-        @property
-        def text(self):
-            components = urlparse(url).path.split("/")
-            with open(
-                os.path.join("tests", "fixtures", *components, "index.html")
-            ) as f:
-                return f.read()
-
-        def raise_for_status(self):
-            pass
-
-    return MockResponse(url)
+expected_es = [
+    {
+        "base_url": "https://standard.open-contracting.org/dev/es/",
+        "text": "\nAcerca de\nEl Estándar de Datos de Contratación Abierta",
+        "title": "Estándar de Datos de Contrataciones Abiertas: Documentación - Acerca de",
+        "url": "https://standard.open-contracting.org/dev/es/#about",
+    }
+]
 
 
 class StandardSearchTestCase(TestCase):
     maxDiff = None
 
-    @patch("requests.get", side_effect=requests_get)
-    def test_extract_page(self, get):
+    def setUp(self):
+        host = "localhost"
+        port_number = 8332
+
+        def http_server():
+            os.chdir(os.path.join("tests", "fixtures"))
+            HTTPServer((host, port_number), SimpleHTTPRequestHandler).serve_forever()
+
+        self.process = Process(target=http_server)
+        self.process.start()
+
+    def tearDown(self):
+        self.process.terminate()
+
+    def test_extract_page(self):
         results = extract_page(
+            "http://localhost:8332/en/guidance/",
             "https://standard.open-contracting.org/dev/en/guidance/",
-            "https://standard.open-contracting.org/dev/en/",
-            None,
         )
 
         self.assertEqual(results, ([expected[1]], "page/"))
 
-    @patch("requests.get", side_effect=requests_get)
-    def test_extract_page_deep(self, get):
+    def test_extract_page_deep(self):
         results = extract_page(
+            "http://localhost:8332/en/schema/",
             "https://standard.open-contracting.org/dev/en/schema/",
-            "https://standard.open-contracting.org/dev/en/",
-            None,
         )
 
         self.assertEqual(results, (expected[3:], None))
 
-    @patch("requests.get", side_effect=requests_get)
-    def test_process(self, get):
-        results = process("https://standard.open-contracting.org/dev/en/", None)
+    def test_process(self):
+        results = process("http://localhost:8332/en/", "https://standard.open-contracting.org/dev/en/")
 
         self.assertEqual(results, expected)
 
     @patch("standardsearch.webapp.views._load")
-    @patch("requests.get", side_effect=requests_get)
-    def test_index(self, get, load):
-        response = self.client.get(
+    def test_index(self, load):
+        response = self.client.post(
             "/v1/index_ocds",
-            {
+            json.dumps({
                 "secret": "change_this_secret_on_production",
-                "version": "dev",
-                "langs": "en,es",
-            },
+                "base_url": "https://standard.open-contracting.org/dev/",
+                "data": {
+                    "en": deepcopy(expected),
+                    "es": deepcopy(expected_es),
+                },
+            }),
+            content_type="application/json",
         )
 
         content = json.loads(response.content.decode("utf-8"))
@@ -134,12 +129,11 @@ class StandardSearchTestCase(TestCase):
         self.assertEqual(content, {"success": True})
 
         self.assertEqual(
-            load.mock_calls,
+            list(map(tuple, load.mock_calls)),
             [
                 (
                     "",
                     (
-                        "english",
                         "https://standard.open-contracting.org/dev/en/",
                         expected,
                         "en",
@@ -149,16 +143,8 @@ class StandardSearchTestCase(TestCase):
                 (
                     "",
                     (
-                        "spanish",
                         "https://standard.open-contracting.org/dev/es/",
-                        [
-                            {
-                                "base_url": "https://standard.open-contracting.org/dev/es/",
-                                "text": "\nAcerca de\nEl Estándar de Datos de Contratación Abierta",
-                                "title": "Estándar de Datos de Contrataciones Abiertas: Documentación - Acerca de",
-                                "url": "https://standard.open-contracting.org/dev/es/#about",
-                            }
-                        ],
+                        expected_es,
                         "es",
                     ),
                     {},
@@ -171,12 +157,7 @@ class StandardSearchTestCase(TestCase):
         es = klass.return_value
         es.indices.exists.return_value = False
 
-        _load(
-            "english",
-            "https://standard.open-contracting.org/dev/en/",
-            deepcopy(expected),
-            "en",
-        )
+        _load("https://standard.open-contracting.org/dev/en/", deepcopy(expected), "en")
 
         klass.assert_called_once_with()
         es.indices.exists.assert_called_once_with("standardsearch_en")
@@ -198,7 +179,7 @@ class StandardSearchTestCase(TestCase):
         es.delete_by_query.assert_called_once_with(
             body={
                 "query": {
-                    "term": {"base_url": "http://standard.open-contracting.org/dev/en/"}
+                    "term": {"base_url": "https://standard.open-contracting.org/dev/en/"}
                 }
             },
             doc_type="results",
@@ -212,7 +193,7 @@ class StandardSearchTestCase(TestCase):
                 (),
                 {
                     "body": {
-                        "base_url": "http://standard.open-contracting.org/dev/en/",
+                        "base_url": "https://standard.open-contracting.org/dev/en/",
                         "text": "\n\n\nAbout\nThe Open Contracting Data Standard",
                         "title": "Open Contracting Data Standard: Documentation - About",
                         "url": "https://standard.open-contracting.org/dev/en/#about",
