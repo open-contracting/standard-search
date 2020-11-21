@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from standardsearch.webapp import views
+from default import views
 
 urlpatterns = [
     url("^v1/search$", views.search_v1, name="search_v1"),

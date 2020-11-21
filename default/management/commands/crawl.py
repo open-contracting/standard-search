@@ -7,7 +7,7 @@ from multiprocessing import Process
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext_lazy as _
 
-from standardsearch.extract_sphinx import process
+from default.extract_sphinx import process
 
 
 class Command(BaseCommand):

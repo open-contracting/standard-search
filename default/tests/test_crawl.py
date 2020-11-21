@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from standardsearch.extract_sphinx import extract_page, process
-from standardsearch.webapp.views import _load
+from default.extract_sphinx import extract_page, process
+from default.views import _load
 
 expected = [
     {
@@ -76,7 +76,7 @@ class StandardSearchTestCase(TestCase):
         port_number = 8332
 
         def http_server():
-            os.chdir(os.path.join("tests", "fixtures"))
+            os.chdir(os.path.join("default", "tests", "fixtures"))
             HTTPServer((host, port_number), SimpleHTTPRequestHandler).serve_forever()
 
         self.process = Process(target=http_server)
@@ -106,7 +106,7 @@ class StandardSearchTestCase(TestCase):
 
         self.assertEqual(results, expected)
 
-    @patch("standardsearch.webapp.views._load")
+    @patch("default.views._load")
     def test_index(self, load):
         response = self.client.post(
             "/v1/index_ocds",
