@@ -17,22 +17,19 @@ LANGUAGE_MAP = {
 def _load(base_url, results, language_code):
     es = elasticsearch.Elasticsearch()
     es_index = f"standardsearch_{language_code}"
-    doc_type = "results"
 
     if not es.indices.exists(es_index):
+        # https://www.elastic.co/guide/en/elasticsearch/reference/7.10/analysis-lang-analyzer.html
         language = LANGUAGE_MAP.get(language_code, "standard")
 
         es.indices.create(
             index=es_index,
             body={
                 "mappings": {
-                    doc_type: {
-                        "_all": {"analyzer": language},
-                        "properties": {
-                            "text": {"type": "text", "analyzer": language},
-                            "title": {"type": "text", "analyzer": language},
-                            "base_url": {"type": "keyword"},
-                        },
+                    "properties": {
+                        "text": {"type": "text", "analyzer": language},
+                        "title": {"type": "text", "analyzer": language},
+                        "base_url": {"type": "keyword"},
                     },
                 },
             },
@@ -40,13 +37,12 @@ def _load(base_url, results, language_code):
 
     es.delete_by_query(
         index=es_index,
-        doc_type=doc_type,
         body={"query": {"term": {"base_url": base_url}}},
     )
 
     for result in results:
         result["base_url"] = base_url
-        es.index(index=es_index, doc_type=doc_type, id=result["url"], body=result)
+        es.index(index=es_index, id=result["url"], body=result)
 
 
 def _respond(content):
