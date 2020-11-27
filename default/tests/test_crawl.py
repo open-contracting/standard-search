@@ -166,13 +166,11 @@ class StandardSearchTestCase(TestCase):
         es.indices.create.assert_called_once_with(
             body={
                 "mappings": {
-                    "results": {
-                        "properties": {
-                            "text": {"type": "text", "analyzer": "english"},
-                            "title": {"type": "text", "analyzer": "english"},
-                            "base_url": {"type": "keyword"},
-                        },
-                    }
+                    "properties": {
+                        "text": {"type": "text", "analyzer": "english"},
+                        "title": {"type": "text", "analyzer": "english"},
+                        "base_url": {"type": "keyword"},
+                    },
                 }
             },
             index="standardsearch_en",
