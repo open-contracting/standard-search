@@ -177,7 +177,6 @@ class StandardSearchTestCase(TestCase):
         )
         es.delete_by_query.assert_called_once_with(
             body={"query": {"term": {"base_url": "https://standard.open-contracting.org/dev/en/"}}},
-            doc_type="results",
             index="standardsearch_en",
         )
         self.assertEqual(es.index.call_count, 8)
@@ -193,7 +192,6 @@ class StandardSearchTestCase(TestCase):
                         "title": "Open Contracting Data Standard: Documentation - About",
                         "url": "https://standard.open-contracting.org/dev/en/#about",
                     },
-                    "doc_type": "results",
                     "id": "https://standard.open-contracting.org/dev/en/#about",
                     "index": "standardsearch_en",
                 },
