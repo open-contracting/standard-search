@@ -167,7 +167,6 @@ class StandardSearchTestCase(TestCase):
             body={
                 "mappings": {
                     "results": {
-                        "_all": {"analyzer": "english"},
                         "properties": {
                             "text": {"type": "text", "analyzer": "english"},
                             "title": {"type": "text", "analyzer": "english"},
