@@ -72,7 +72,7 @@ def search_v1(request):
             "query": {
                 "bool": {
                     "must": {
-                        "query_string": {
+                        "simple_query_string": {
                             "query": q,
                             "fields": ["text", "title^3"],
                             "default_operator": "and",
